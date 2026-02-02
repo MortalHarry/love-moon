@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moon 🌙</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<style>
+:root{
+  --night1:#0f172a;
+  --night2:#1e293b;
+  --moon:#fde68a;
+  --soft:#f8fafc;
+}
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:radial-gradient(circle at top,var(--night2),var(--night1));
+  font-family:system-ui,sans-serif;
+  overflow:hidden;
+  color:var(--soft);
+}
+
+canvas{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:10;
+}
+
+.card{
+  background:rgba(15,23,42,.65);
+  backdrop-filter:blur(10px);
+  padding:30px;
+  border-radius:24px;
+  width:min(720px,92vw);
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+  z-index:5;
+}
+
+/* MOON */
+.moon{
+  width:120px;
+  height:120px;
+  margin:0 auto 12px;
+  background:radial-gradient(circle at 30% 30%, #fff, var(--moon));
+  border-radius:50%;
+  box-shadow:0 0 30px rgba(253,230,138,.6);
+  animation:float 3s ease-in-out infinite;
+}
+
+@keyframes float{
+  0%,100%{ transform:translateY(0) }
+  50%{ transform:translateY(-10px) }
+}
+
+h1{
+  font-size:clamp(26px,4vw,42px);
+}
+
+.zone{
+  position:relative;
+  height:150px;
+  margin-top:24px;
+}
+
+button{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  padding:16px 28px;
+  font-size:18px;
+  font-weight:700;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.4);
+}
+
+#yes{
+  left:18%;
+  background:#fde68a;
+  color:#111827;
+}
+
+#no{
+  left:62%;
+  background:#334155;
+  color:#f8fafc;
+}
+
+.result{
+  display:none;
+  animation:fade .5s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.result h2{
+  font-size:36px;
+  margin-bottom:8px;
+}
+
+.msg{
+  font-size:22px;
+  margin-bottom:12px;
+}
+
+.gif{
+  width:min(360px,90vw);
+  border-radius:20px;
+  margin-top:10px;
+}
+
+/* START OVERLAY */
+#overlay{
+  position:fixed;
+  inset:0;
+  background:radial-gradient(circle,var(--night2),var(--night1));
+  display:grid;
+  place-items:center;
+  z-index:20;
+}
+
+#overlay button{
+  position:static;
+  transform:none;
+  font-size:22px;
+  background:#fde68a;
+  color:#111827;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="confetti"></canvas>
+
+<!-- TAP TO START -->
+<div id="overlay">
+  <button id="start">Tap to start 🌙</button>
+</div>
+
+<!-- LOCAL AUDIO -->
+<audio id="music" loop preload="auto">
+  <source src="moon.mp3" type="audio/mpeg">
+</audio>
+
+<div class="card">
+  <div class="moon"></div>
+
+  <h1>Moon… do you miss me? 🌙</h1>
+
+  <div class="zone" id="zone">
+    <button id="yes">Yes 🥺</button>
+    <button id="no">No 😶</button>
+  </div>
+
+  <div class="result" id="result">
+    <h2>Missing you too…!</h2>
+    <div class="msg">Love you sooo muchhh 🥺❤️</div>
+    <img class="gif" src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif">
+  </div>
+</div>
+
+<script>
+/* MUSIC */
+const start=document.getElementById("start");
+const overlay=document.getElementById("overlay");
+const music=document.getElementById("music");
+
+start.onclick=()=>{
+  music.volume=0.7;
+  music.play();
+  overlay.style.display="none";
+};
+
+/* CONFETTI (SOFT) */
+const canvas=document.getElementById("confetti");
+const resize=()=>{
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=innerWidth*dpr;
+  canvas.height=innerHeight*dpr;
+};
+resize();
+addEventListener("resize",resize);
+
+const conf=confetti.create(canvas,{resize:false,useWorker:true});
+
+function softConfetti(){
+  const end=Date.now()+1500;
+  (function frame(){
+    conf({
+      particleCount:6,
+      spread:80,
+      startVelocity:20,
+      colors:["#fde68a","#e5e7eb","#f8fafc"],
+      origin:{x:Math.random(),y:Math.random()*0.4}
+    });
+    if(Date.now()<end)requestAnimationFrame(frame);
+  })();
+}
+
+/* BUTTON LOGIC */
+const yes=document.getElementById("yes");
+const no=document.getElementById("no");
+const zone=document.getElementById("zone");
+const result=document.getElementById("result");
+
+yes.onclick=()=>{
+  zone.style.display="none";
+  result.style.display="block";
+  softConfetti();
+};
+
+const msgs=[
+  "Moon says yes only 🌙",
+  "Don’t lie 😌",
+  "You know you do 🥺",
+  "Wrong answer 😏"
+];
+
+no.onmouseover=()=>{
+  no.style.left=Math.random()*70+"%";
+  no.style.top=Math.random()*80+"%";
+};
+
+no.onclick=e=>{
+  e.preventDefault();
+  alert(msgs[Math.floor(Math.random()*msgs.length)]);
+};
+</script>
+
+</body>
+</html>
