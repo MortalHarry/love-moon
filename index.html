@@ -9,8 +9,8 @@
 
 <style>
 :root{
-  --night1:#0f172a;
-  --night2:#1e293b;
+  --night1:#0b1023;
+  --night2:#111b3a;
   --moon:#fde68a;
   --soft:#f8fafc;
 }
@@ -27,6 +27,28 @@ body{
   color:var(--soft);
 }
 
+/* STAR BACKGROUND */
+.stars{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  z-index:1;
+}
+.star{
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:white;
+  opacity:.6;
+  animation:fall linear infinite;
+}
+@keyframes fall{
+  from{ transform:translateY(-10vh); opacity:0 }
+  10%{ opacity:.8 }
+  to{ transform:translateY(110vh); opacity:0 }
+}
+
+/* CONFETTI */
 canvas{
   position:fixed;
   inset:0;
@@ -34,54 +56,60 @@ canvas{
   z-index:10;
 }
 
+/* CARD */
 .card{
-  background:rgba(15,23,42,.65);
-  backdrop-filter:blur(10px);
-  padding:30px;
-  border-radius:24px;
+  background:rgba(11,16,35,.65);
+  backdrop-filter:blur(12px);
+  padding:32px;
+  border-radius:26px;
   width:min(720px,92vw);
   text-align:center;
-  box-shadow:0 20px 60px rgba(0,0,0,.4);
+  box-shadow:0 30px 80px rgba(0,0,0,.45);
   z-index:5;
 }
 
 /* MOON */
 .moon{
-  width:120px;
-  height:120px;
-  margin:0 auto 12px;
+  width:130px;
+  height:130px;
+  margin:0 auto 16px;
   background:radial-gradient(circle at 30% 30%, #fff, var(--moon));
   border-radius:50%;
-  box-shadow:0 0 30px rgba(253,230,138,.6);
-  animation:float 3s ease-in-out infinite;
+  box-shadow:0 0 35px rgba(253,230,138,.7);
+  animation:float 4s ease-in-out infinite, pulse 2.8s ease-in-out infinite;
 }
 
 @keyframes float{
   0%,100%{ transform:translateY(0) }
-  50%{ transform:translateY(-10px) }
+  50%{ transform:translateY(-12px) }
+}
+@keyframes pulse{
+  0%,100%{ box-shadow:0 0 30px rgba(253,230,138,.6) }
+  50%{ box-shadow:0 0 55px rgba(253,230,138,.9) }
 }
 
 h1{
   font-size:clamp(26px,4vw,42px);
+  margin-bottom:10px;
 }
 
 .zone{
   position:relative;
   height:150px;
-  margin-top:24px;
+  margin-top:26px;
 }
 
 button{
   position:absolute;
   top:50%;
   transform:translateY(-50%);
-  padding:16px 28px;
+  padding:16px 30px;
   font-size:18px;
   font-weight:700;
   border:none;
   border-radius:999px;
   cursor:pointer;
-  box-shadow:0 10px 24px rgba(0,0,0,.4);
+  box-shadow:0 12px 28px rgba(0,0,0,.4);
 }
 
 #yes{
@@ -98,28 +126,40 @@ button{
 
 .result{
   display:none;
-  animation:fade .5s ease;
+  animation:fade .6s ease;
 }
 
 @keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
+  from{opacity:0;transform:translateY(12px)}
   to{opacity:1;transform:translateY(0)}
 }
 
 .result h2{
   font-size:36px;
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 
 .msg{
   font-size:22px;
-  margin-bottom:12px;
+  margin-bottom:14px;
+}
+
+.travel{
+  margin-top:10px;
+  font-size:20px;
+  opacity:0;
+  animation:travelFade 2s ease forwards;
+  animation-delay:1.2s;
+}
+
+@keyframes travelFade{
+  to{ opacity:1 }
 }
 
 .gif{
   width:min(360px,90vw);
-  border-radius:20px;
-  margin-top:10px;
+  border-radius:22px;
+  margin-top:14px;
 }
 
 /* START OVERLAY */
@@ -144,14 +184,15 @@ button{
 
 <body>
 
+<div class="stars" id="stars"></div>
 <canvas id="confetti"></canvas>
 
-<!-- TAP TO START -->
+<!-- START -->
 <div id="overlay">
   <button id="start">Tap to start 🌙</button>
 </div>
 
-<!-- LOCAL AUDIO -->
+<!-- AUDIO (UNCHANGED – your Let Her Go instrumental) -->
 <audio id="music" loop preload="auto">
   <source src="moon.mp3" type="audio/mpeg">
 </audio>
@@ -169,24 +210,34 @@ button{
   <div class="result" id="result">
     <h2>Missing you too…!</h2>
     <div class="msg">Love you sooo muchhh 🥺❤️</div>
-    <div class="msg">Safe travels to Netherlands 🌍✨❤️</div>
+    <div class="travel">Safe travels to Netherlands 🌍</div>
     <img class="gif" src="https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif">
   </div>
 </div>
 
 <script>
+/* STARS */
+const stars=document.getElementById("stars");
+for(let i=0;i<80;i++){
+  const s=document.createElement("div");
+  s.className="star";
+  s.style.left=Math.random()*100+"vw";
+  s.style.animationDuration=6+Math.random()*8+"s";
+  s.style.animationDelay=Math.random()*8+"s";
+  stars.appendChild(s);
+}
+
 /* MUSIC */
 const start=document.getElementById("start");
 const overlay=document.getElementById("overlay");
 const music=document.getElementById("music");
 
 start.onclick=()=>{
-  music.volume=0.7;
   music.play();
   overlay.style.display="none";
 };
 
-/* CONFETTI (SOFT) */
+/* CONFETTI */
 const canvas=document.getElementById("confetti");
 const resize=()=>{
   const dpr=window.devicePixelRatio||1;
@@ -199,12 +250,12 @@ addEventListener("resize",resize);
 const conf=confetti.create(canvas,{resize:false,useWorker:true});
 
 function softConfetti(){
-  const end=Date.now()+1500;
+  const end=Date.now()+1600;
   (function frame(){
     conf({
       particleCount:6,
-      spread:80,
-      startVelocity:20,
+      spread:90,
+      startVelocity:22,
       colors:["#fde68a","#e5e7eb","#f8fafc"],
       origin:{x:Math.random(),y:Math.random()*0.4}
     });
@@ -212,7 +263,7 @@ function softConfetti(){
   })();
 }
 
-/* BUTTON LOGIC */
+/* BUTTONS */
 const yes=document.getElementById("yes");
 const no=document.getElementById("no");
 const zone=document.getElementById("zone");
@@ -226,8 +277,8 @@ yes.onclick=()=>{
 
 const msgs=[
   "Moon says yes only 🌙",
-  "Don’t lie 😌",
   "You know you do 🥺",
+  "That’s not true 😌",
   "Wrong answer 😏"
 ];
 
@@ -244,4 +295,3 @@ no.onclick=e=>{
 
 </body>
 </html>
-
